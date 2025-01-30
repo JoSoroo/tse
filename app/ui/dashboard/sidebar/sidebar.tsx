@@ -7,6 +7,7 @@ import {
 } from "react-icons/md"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import MenuLink from './menuLink/menuLink'
+import { useRouter } from 'next/navigation'
 
 const menuItems = [
   {
@@ -33,6 +34,7 @@ const menuItems = [
 
 export default function Sidebar() {
   const [user, setUser] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -66,6 +68,10 @@ export default function Sidebar() {
 
     fetchUser();
   }, []);
+  const handleLogout = () =>{
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
 
   return (
     <div className="p-6">
@@ -93,7 +99,7 @@ export default function Sidebar() {
           </li>
         ))}
       </ul>
-      <button className="p-5 my-1 flex items-center gap-2.5 cursor-pointer rounded-lg">
+      <button className="p-5 my-1 flex items-center gap-2.5 cursor-pointer rounded-lg" onClick={handleLogout}>
         <MdLogout />
         Logout
       </button>

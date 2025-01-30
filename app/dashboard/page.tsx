@@ -13,7 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export default function Dashboard() {
   return (
       <div className="flex-1 flex justify-center items-center bg-gray-100">
-        <Carousel className="w-full max-w-lg">
+        <Carousel className="w-full max-w-2xl">
           <CarouselContent>
             {Array.from({ length: 3 }).map((_, index) => (
               <CarouselItem key={index}>
@@ -26,7 +26,7 @@ export default function Dashboard() {
                         alt={`Slide ${index + 1}`}
                         width={400}
                         height={400}
-                        className="rounded-lg object-cover"
+                        className="rounded-lg object-cover w-full h-full"
                         />
                     </CardContent>
                   </Card>

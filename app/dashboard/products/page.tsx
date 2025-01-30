@@ -25,16 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-
-
+import Link from 'next/link';
 export default function ProductsPage() {
-  interface Product {
-  _id: string;
-  name: string;
-  category: string;
-  price: number;
-  image?: string; // Зураг байхгүй байж болно
-}
   const [open, setOpen] = useState(false);
   const [productMNName, setProductMNName] = useState(""); // Монгол нэр
   const [productCHName, setProductCHName] = useState(""); // Хятад нэр
@@ -44,6 +36,7 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState<{ _id: string; name: string }[]>([]);
   const [categoryValue, setCategoryValue] = useState("");  // Сонгосон категорийн утга
   const [products, setProducts] = useState<{ _id: string; name: string; category: string; price: number; image: File }[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   useEffect(() => {
     fetchCategories();
     fetchProducts();
@@ -70,8 +63,6 @@ export default function ProductsPage() {
       console.error("Бүтээгдэхүүн авахад алдаа гарлаа:", error);
     }
   };
-  
-  
   const fetchCategories = async () => {
     try {
       const res = await fetch("http://localhost:5000/api/categories");
@@ -112,10 +103,26 @@ export default function ProductsPage() {
       console.error("Алдаа:", error);
     }
   };
-  
-  
-  
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const deleteProduct = async (id: string)=>{
+    try {
+        const res=await fetch(`http://localhost:5000/api/products/${id}`,{
+            method:"DELETE",
+        });
+        if(res.ok){
+            setProducts((pre) => (pre ? pre.filter((product) => product._id !== id) : []));
 
+            console.log("amjilttai ustlaa"); 
+            
+        } else {
+            console.log("Ustgah ywtsad aldaa garlaa");
+        }
+    }catch(err){
+        console.error("Категори устгах явцад алдаа гарлаа:", err);
+    }
+};
   return (
     <div>
       <div className='flex justify-between w-full'>
@@ -126,6 +133,8 @@ export default function ProductsPage() {
               type="text" 
               placeholder='Search ...' 
               className='bg-transparent border-none text-white placeholder-amber-400 focus:outline-none w-full' 
+              defaultValue={searchTerm || ""}
+              onChange={(e) => setSearchTerm(e.target.value)} // Утгыг шинэчлэх
             />
           </div>
         </div>
@@ -219,30 +228,49 @@ export default function ProductsPage() {
       </div>
 
       <Table>
-  <TableCaption>Таны бүтээгдэхүүнүүд</TableCaption>
-  <TableHeader>
-    <TableRow>
-      <TableHead className="w-[100px]">Id</TableHead>
-      <TableHead>Нэр</TableHead>
-      <TableHead>Зураг</TableHead>
-      <TableHead>Категори</TableHead>
-      <TableHead className="text-right">Үнэ</TableHead>
-    </TableRow>
-  </TableHeader>
-  <TableBody>
-    {products.map((product, index) => (
-      <TableRow key={product._id}>
-        <TableCell>{index + 1}</TableCell>
-        <TableCell>{product.name}</TableCell>
-        <TableCell>
-          <img src={`http://localhost:5000/${product.image}`} alt={product.name} className="w-16 h-16 object-cover" />
-        </TableCell>
-        <TableCell>{product.category}</TableCell>
-        <TableCell className="text-right">{product.price}₮</TableCell>
-      </TableRow>
-    ))}
-  </TableBody>
-</Table>
+        <TableCaption>Таны бүтээгдэхүүнүүд</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px]">Id</TableHead>
+            <TableHead>Категори</TableHead>
+            <TableHead>Зураг</TableHead>
+            <TableHead>Нэр</TableHead>
+            <TableHead className="text-right">Үнэ</TableHead>
+            <TableHead className="text-right"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {filteredProducts.map((product, index) => (
+            <TableRow key={product._id}>
+              <TableCell><Link href={`/dashboard/products/${product._id}`}>{index + 1}</Link></TableCell>
+              <TableCell><Link href={`/dashboard/products/${product._id}`}>{product.category}</Link></TableCell>
+              <TableCell>
+              <Link href={`/dashboard/products/${product._id}`}>
+                <img src={`http://localhost:5000/${product.image}`} alt={product.name} className="w-16 h-16 object-cover" />
+                </Link>
+              </TableCell>
+              <TableCell><Link href={`/dashboard/products/${product._id}`}>{product.name}</Link></TableCell>
+              <TableCell className="text-right"><Link href={`/dashboard/products/${product._id}`}>{product.price}₮</Link></TableCell>
+              <TableCell className="flex justify-end content-right">          
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <MdDelete size={17} className="m-7 cursor-pointer"/>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Энэ категориг устгах уу?</AlertDialogTitle>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Үгүй</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => deleteProduct(product._id)}>Тийм</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   )
 }

@@ -178,14 +178,14 @@ export default function CategoryPage() {
               <TableCell className="text-right">
                 <div className="flex justify-end">
                   {/* Категори шинэчлэх */}
-                  <IoPencilSharp
+                  <IoPencilSharp size={17}
                     className="m-1 cursor-pointer"
                     onClick={() => handleCategoryUpdate(category._id, category.name)}  // Категориоыг шинэчлэх диалогт оруулах
                   />
                   {/* Категори устгах */}
                   <AlertDialog>
                 <AlertDialogTrigger asChild>
-                <MdDelete  className="m-1 cursor-pointer"/>
+                <MdDelete size={17} className="m-1 cursor-pointer"/>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
